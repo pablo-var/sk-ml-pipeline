@@ -1,0 +1,15 @@
+data_url: http:data
+model_type: linear_model.LogisticRegression
+n_iterations: 10
+model_parameters:
+  C:
+    distribution: uniform
+      min_value: 0.2
+      max_value: 1
+  penalty:
+    distribution: choice
+      choices: [l1, l2, elasticnet]
+
+
+
+
