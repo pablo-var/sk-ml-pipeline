@@ -2,4 +2,4 @@
 *.txt
 .cov*
 artifacts/
-*/__pycache__/
+*__pycache__/
