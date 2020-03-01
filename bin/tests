@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+cmd="python -m pytest tests/${1:-}"
+
+docker run sk-ml-pipeline:latest bash -c "$cmd"
