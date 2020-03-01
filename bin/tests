@@ -2,4 +2,4 @@
 
 cmd="python -m pytest tests/${1:-}"
 
-docker run sk-ml-pipeline:latest bash -c "$cmd"
+docker run -v $(pwd):/usr/app sk-ml-pipeline:latest bash -c "$cmd"
