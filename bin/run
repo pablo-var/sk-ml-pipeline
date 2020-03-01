@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+docker run -it -v $(pwd):/usr/app sk-ml-pipeline:latest bash
