@@ -1,2 +1,5 @@
 .idea/
 *.txt
+.cov*
+artifacts/
+*/__pycache__/
