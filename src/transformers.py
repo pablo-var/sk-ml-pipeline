@@ -78,6 +78,9 @@ class CategoricalEncoder(TransformerMixin):
         if self.encoder_ == 'mean':
             assert y is not None, 'the target is needed for the mean encoding'
         self.encoder_class.fit(X, y)
+        return self
 
     def transform(self, X, y=None):
-        self.encoder_class.transform(X, y)
+        if self.encoder_ == 'mean':
+            return self.encoder_class.transform(X, y)
+        return self.encoder_class.transform(X)

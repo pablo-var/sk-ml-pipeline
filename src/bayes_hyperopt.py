@@ -23,7 +23,7 @@ class BayesOpt:
                          'categoricalencoder': {'encoder': hp.choice('encoder', ['onehot', 'mean'])},
                          'simpleimputer': {'strategy': hp.choice('strategy', ['mean', 'median'])}}
         config_space = {'logisticregression': {'C': hp.uniform('C', 0.2, 1.0),
-                                               'penalty': hp.choice('penalty', ['l1', 'l2', 'elasticnet'])}}
+                                               'penalty': hp.choice('penalty', ['l1', 'l2'])}}
         self.search_space = {**generic_space, **config_space}
 
     def _load_models_candidates(self):
