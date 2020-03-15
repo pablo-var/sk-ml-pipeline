@@ -4,10 +4,17 @@ Module for unit testing the custom transformers.
 
 import pytest
 import numpy as np
-from src.transformers import CountThresholder, CategoricalEncoder
+import pandas as pd
 from sklearn.preprocessing import OneHotEncoder
-from sklearn.preprocessing import LabelEncoder
+
+from src.transformers import SelectDtypeColumns, CountThresholder, CategoricalEncoder
 from category_encoders.target_encoder import TargetEncoder
+
+
+@pytest.fixture(scope="module")
+def df_test():
+    df_test = pd.DataFrame({'int': [1, 2, 3], 'bool': [True, False, True], 'cat': ['a', 'b', 'c']})
+    return df_test
 
 
 @pytest.fixture(scope="module")
@@ -27,6 +34,21 @@ def columns():
 def target():
     target = np.array([0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1])
     return target
+
+
+def test__SelectDtypeColumns__init__correct_instantiation():
+    transformer = SelectDtypeColumns(include=['number', 'bool'])
+    assert transformer.include_ == ['number', 'bool']
+
+
+def test__SelectDtypeColumns___include_numeric_bool_correct_response(df_test):
+    transformer = SelectDtypeColumns(include=['number', 'bool'], )
+    assert np.array_equal(transformer.fit_transform(df_test), np.array([[1, True], [2, False], [3, True]]))
+
+
+def test__SelectDtypeColumns___exclude_numeric_bool_correct_response(df_test):
+    transformer = SelectDtypeColumns(exclude=['number', 'bool'], )
+    assert np.array_equal(transformer.fit_transform(df_test), np.array([['a'], ['b'], ['c']]))
 
 
 def test__CountThresholder__init__correct_instantiation():
@@ -132,14 +154,17 @@ def test_CategoricalEncoder_correct_instantiation(encoder_name, python_class):
     transformer = CategoricalEncoder(encoder=encoder_name)
     assert isinstance(transformer.encoder_class, python_class)
 
+
 def test_CategoricalEncoder_correct_instantiation_correct_assertion():
     with pytest.raises(AssertionError, match="the encoder must be: \['onehot', 'mean'\]"):
         CategoricalEncoder(encoder='non_valid_encoder')
+
 
 @pytest.mark.parametrize("encoder_name, python_class", [('onehot', OneHotEncoder), ('mean', TargetEncoder)])
 def test_CategoricalEncoder_correct_execution(encoder_name, python_class, columns, target):
     transformer = CategoricalEncoder(encoder=encoder_name)
     transformer.fit(columns, target)
+
 
 def test_CategoricalEncoder_target_encoder_correct_assertion(columns):
     transformer = CategoricalEncoder(encoder='mean')

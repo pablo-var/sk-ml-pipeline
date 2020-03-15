@@ -5,8 +5,31 @@ import pandas as pd
 import numpy as np
 from sklearn.base import TransformerMixin
 from sklearn.preprocessing import OneHotEncoder
-from sklearn.preprocessing import LabelEncoder
 from category_encoders.target_encoder import TargetEncoder
+
+
+class SelectDtypeColumns(TransformerMixin):
+    """
+    Transformer that selects columns of a specific type from a dataframe and returns a numpy array.
+    At least one of the parameters must be supplied.
+
+    Parameters
+    ----------
+    include : scalar or list-like
+        A selection of dtypes or strings to be included.
+    exclude : scalar or list-like
+        A selection of dtypes or strings to be excluded.
+    """
+    def __init__(self, include=None, exclude=None):
+        self.include_ = include
+        self.exclude_ = exclude
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X, y=None):
+        X_transformed = X.select_dtypes(include=self.include_, exclude=self.exclude_).values
+        return X_transformed
 
 
 class CountThresholder(TransformerMixin):
@@ -18,6 +41,7 @@ class CountThresholder(TransformerMixin):
     The default name for the new category is 'other'.
     Inspiration:
         - https://turi.com/products/create/docs/generated/graphlab.toolkits.feature_engineering.CountThresholder.html
+
     Parameters
     ----------
     max_categories : int
