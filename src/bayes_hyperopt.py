@@ -1,7 +1,7 @@
 """Bayesian hyperparameter tuning module
 """
 from sklearn.model_selection import cross_val_score
-from hyperopt import hp, fmin, tpe, Trials, STATUS_OK #, STATUS_FAIL
+from hyperopt import hp, fmin, tpe, Trials, STATUS_OK  # , STATUS_FAIL
 
 
 class BayesOpt:
@@ -15,26 +15,35 @@ class BayesOpt:
     """
 
     def __init__(self, config_loader):
-        self.n_iterations = config_loader['n_iterations']
-        self.prob_parameters_space = None
+        self._config_loader = config_loader
+        self._n_iterations = self._config_loader['n_iterations']
 
     def _define_parameters_prob_space(self):
         generic_space = {'countthresholder': {'min_rel_freq': hp.uniform('min_rel_freq', 0.0, 1.0)},
                          'categoricalencoder': {'encoder': hp.choice('encoder', ['onehot', 'mean'])},
                          'simpleimputer': {'strategy': hp.choice('strategy', ['mean', 'median'])}}
-        config_space = {'logisticregression': {'C': hp.uniform('C', 0.2, 1.0),
-                                               'penalty': hp.choice('penalty', ['l1', 'l2'])}}
-        self.search_space = {**generic_space, **config_space}
+        model_space = {'logisticregression': self._load_models_candidates()}
+        self.search_space = {**generic_space, **model_space}
 
     def _load_models_candidates(self):
-        pass
+        # TODO: Implement logic to handle more than one model at the same time and unit tests
+        model_space = {}
+        model_parameters = self._config_loader['model_parameters']
+        for param in model_parameters.keys():
+            if 'uniform' in model_parameters:
+                min_value, max_value = model_parameters[param]['uniform']
+                model_space[param] = hp.choice(param, min_value, max_value)
+            elif 'choice' in model_parameters:
+                model_space[param] = hp.choice(param, model_parameters[param]['choice'])
+        return model_space
 
     def optimization(self, pipeline, X, y):
         def objective_function(search_space):
             loss_avg = cross_val_score(pipeline(search_space), X, y).mean()
             status = STATUS_OK
             return {'loss': loss_avg, 'status': status}
+
         self._define_parameters_prob_space()
         trials = Trials()
-        best = fmin(objective_function, self.search_space, algo=tpe.suggest, max_evals=10, trials=trials)
+        best = fmin(objective_function, self.search_space, algo=tpe.suggest, max_evals=self._n_iterations, trials=trials)
         return best

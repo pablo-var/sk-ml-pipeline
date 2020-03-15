@@ -1,13 +1,11 @@
 import pytest
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import FunctionTransformer
-from sklearn.base import TransformerMixin
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import make_pipeline, make_union
 from sklearn.linear_model import LogisticRegression
 
-from src.transformers import CountThresholder, CategoricalEncoder
+from src.transformers import SelectDtypeColumns, CountThresholder, CategoricalEncoder
 from src.bayes_hyperopt import BayesOpt
 from src.config_loader import ConfigLoader
 
@@ -56,12 +54,11 @@ def y_test():
     return np.array([1, 0, 0, 1, 0, 0, 0, 1, 1, 1])
 
 
-def test__A__correct_response(config, X_int, X_float, X_bool, y_test):
+def test__bayesopt__optimization__cat_features_correct_response(config, X_int, X_float, X_bool, y_test):
     bayes = BayesOpt(config)
 
     def create_pipeline(search_space):
         pipeline = make_pipeline(SimpleImputer(**search_space['simpleimputer']),
-                                 # CategoricalEncoder(**search_space['categoricalencoder']), ##CountThresholder(**search_space['countthresholder']),
                                  LogisticRegression(solver='liblinear', **search_space['logisticregression']))
         return pipeline
 
@@ -70,31 +67,14 @@ def test__A__correct_response(config, X_int, X_float, X_bool, y_test):
     bayes.optimization(create_pipeline, X_bool, y_test)
 
 
-def test__B__correct_response(config, X_cat_float_int__bool, y_test):
+def test__bayesopt__optimization__cat_and_numeric_features_correct_response(config, X_cat_float_int__bool, y_test):
     bayes = BayesOpt(config)
-
-    # select_categorical = FunctionTransformer(lambda df: df.select_dtypes(exclude=['number', 'bool']).values)
-    # select_numeric = FunctionTransformer(lambda df: df.select_dtypes(include=['number', 'bool']).values)
-    class SelectDtypeColumnsTransfomer(TransformerMixin):
-
-        def __init__(self, include=None, exclude=None):
-            self.include_ = include
-            self.exclude_ = exclude
-
-        def fit(self, X, y=None):
-            return self
-
-        def transform(self, X, y=None):
-            X_transformed = X.select_dtypes(include=self.include_, exclude=self.exclude_).values
-            return X_transformed
-
     def create_pipeline(search_space):
-        pipeline = make_pipeline(make_union(make_pipeline(SelectDtypeColumnsTransfomer(exclude=['number', 'bool']),
+        pipeline = make_pipeline(make_union(make_pipeline(SelectDtypeColumns(exclude=['number', 'bool']),
                                                           CountThresholder(**search_space['countthresholder']),
                                                           CategoricalEncoder(**search_space['categoricalencoder'])),
-                                            make_pipeline(SelectDtypeColumnsTransfomer(include=['number', 'bool']),
+                                            make_pipeline(SelectDtypeColumns(include=['number', 'bool']),
                                                           SimpleImputer(**search_space['simpleimputer']))),
                                  LogisticRegression(solver='liblinear', **search_space['logisticregression']))
         return pipeline
-
     bayes.optimization(create_pipeline, X_cat_float_int__bool, y_test)
