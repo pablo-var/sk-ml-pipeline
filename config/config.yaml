@@ -1,15 +1,12 @@
-data_url: http:data
+local_app_path: &local_app_path /usr/app
+local_artifacts_path: &local_artifacts_path !join [*local_app_path, /artifacts]
+local_data_path: !join [*local_artifacts_path, /breast-cancer-wisconsin-data.zip]
+
+target_column: diagnosis
 model_type: linear_model.LogisticRegression
 n_iterations: 10
 model_parameters:
   C:
-    distribution: uniform
-      min_value: 0.2
-      max_value: 1
+    uniform: [0.2, 1]
   penalty:
-    distribution: choice
-      choices: [l1, l2, elasticnet]
-
-
-
-
+    choice: [l1, l2, elasticnet]
