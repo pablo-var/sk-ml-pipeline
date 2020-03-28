@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+cmd="python src/trainer.py"
+
+docker run -v $(pwd):/usr/app sk-ml-pipeline:latest bash -c "$cmd"

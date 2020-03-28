@@ -16,3 +16,6 @@ WORKDIR /usr/app
 COPY . .
 
 RUN pip install -r requirements.txt
+
+ENV APP_PATH="/usr/app"
+ENV PYTHONPATH "${PYTHONPATH}:${APP_PATH}"
