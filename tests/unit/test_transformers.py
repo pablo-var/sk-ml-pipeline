@@ -42,12 +42,12 @@ def test__SelectDtypeColumns__init__correct_instantiation():
 
 
 def test__SelectDtypeColumns___include_numeric_bool_correct_response(df_test):
-    transformer = SelectDtypeColumns(include=['number', 'bool'], )
+    transformer = SelectDtypeColumns(include=['number', 'bool'])
     assert np.array_equal(transformer.fit_transform(df_test), np.array([[1, True], [2, False], [3, True]]))
 
 
 def test__SelectDtypeColumns___exclude_numeric_bool_correct_response(df_test):
-    transformer = SelectDtypeColumns(exclude=['number', 'bool'], )
+    transformer = SelectDtypeColumns(exclude=['number', 'bool'])
     assert np.array_equal(transformer.fit_transform(df_test), np.array([['a'], ['b'], ['c']]))
 
 

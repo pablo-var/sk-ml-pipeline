@@ -50,11 +50,11 @@ def X_cat_float_int__bool():
 
 
 @pytest.fixture(scope="module")
-def y_test():
+def y_testing():
     return np.array([1, 0, 0, 1, 0, 0, 0, 1, 1, 1])
 
 
-def test__bayesopt__optimization__cat_features_correct_response(config, X_int, X_float, X_bool, y_test):
+def test__bayesopt__optimization__cat_features_correct_response(config, X_int, X_float, X_bool, y_testing):
     bayes = BayesOpt(config)
 
     def create_pipeline(search_space):
@@ -62,13 +62,14 @@ def test__bayesopt__optimization__cat_features_correct_response(config, X_int, X
                                  LogisticRegression(solver='liblinear', **search_space['logisticregression']))
         return pipeline
 
-    bayes.optimization(create_pipeline, X_float, y_test)
-    bayes.optimization(create_pipeline, X_int, y_test)
-    bayes.optimization(create_pipeline, X_bool, y_test)
+    bayes.optimization(create_pipeline, X_float, y_testing)
+    bayes.optimization(create_pipeline, X_int, y_testing)
+    bayes.optimization(create_pipeline, X_bool, y_testing)
 
 
-def test__bayesopt__optimization__cat_and_numeric_features_correct_response(config, X_cat_float_int__bool, y_test):
+def test__bayesopt__optimization__cat_and_numeric_features_correct_response(config, X_cat_float_int__bool, y_testing):
     bayes = BayesOpt(config)
+
     def create_pipeline(search_space):
         pipeline = make_pipeline(make_union(make_pipeline(SelectDtypeColumns(exclude=['number', 'bool']),
                                                           CountThresholder(**search_space['countthresholder']),
@@ -77,4 +78,4 @@ def test__bayesopt__optimization__cat_and_numeric_features_correct_response(conf
                                                           SimpleImputer(**search_space['simpleimputer']))),
                                  LogisticRegression(solver='liblinear', **search_space['logisticregression']))
         return pipeline
-    bayes.optimization(create_pipeline, X_cat_float_int__bool, y_test)
+    bayes.optimization(create_pipeline, X_cat_float_int__bool, y_testing)
