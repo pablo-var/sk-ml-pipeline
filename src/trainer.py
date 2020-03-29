@@ -7,6 +7,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import make_pipeline, make_union
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report
 
 from src.logging_config import setup_logging
 from src.config_loader import ConfigLoader
@@ -20,13 +21,15 @@ CONFIG.load('config/config.yaml')
 
 class Trainer:
 
-    def __init__(self, config):
+    def __init__(self, config, seed=0):
 
         self._config = config
+        self._seed = seed
+        np.random.seed(self._seed)
         self.data = None
         self.categorical_columns = None
         self.numerical_columns = None
-        self.model = None
+        self.best_pipeline = None
         self.parameters_space = None
         self.df_train = None
         self.df_test = None
@@ -42,6 +45,7 @@ class Trainer:
         self.qa_data()
         self.split_data()
         self.train_model()
+        self.evaluate_model()
 
     def load_data(self):
         # TODO: Implement loading process from S3
@@ -60,8 +64,9 @@ class Trainer:
         """
         logger = lg.getLogger(self.preprocessing.__name__)
         logger.info('Preprocessing data')
+        self.data.drop(columns='id', inplace=True)
         self.data.dropna(axis='columns', how='all', inplace=True)
-        self.data['cat'] = np.random.choice(['a', 'b'], size=self.data.shape[0])
+        # self.data['cat'] = np.random.choice(['a', 'b'], size=self.data.shape[0])
         self.data.select_dtypes(exclude=['number', 'bool']).fillna('nan')
         logger.info('Data head: \n %s', self.data.head())
         logger.info(self.data.columns)
@@ -78,7 +83,9 @@ class Trainer:
         logger = lg.getLogger(self.split_data.__name__)
         self.df_train, self.df_test = train_test_split(self.data, train_size=self._config['train_size'])
         logger.info('Training dataset shape: %s head: \n %s', self.df_train.shape, self.df_train.head())
+        logger.info('Train target distribution: \n %s', self.df_train[self.target_column].mean())
         logger.info('Test dataset shape: %s head: \n %s', self.df_test.shape, self.df_test.head())
+        logger.info('Test target distribution: \n %s', self.df_test[self.target_column].mean())
 
     def _create_pipeline(self, search_space):
         # TODO: Parametrize the model defined
@@ -104,11 +111,17 @@ class Trainer:
         x = self.df_train.drop(columns=self.target_column)
         y = self.df_train[self.target_column].values
         logger.info('X dataset shape: %s head: \n %s', x.shape, x)
-        best_params = bayes.optimization(self._create_pipeline, x, y)
-        logger.info(best_params)
+        best_space = bayes.optimization(self._create_pipeline, x, y)
+        logger.info(best_space)
+        self.best_pipeline = self._create_pipeline(best_space)
+        self.best_pipeline.fit(x, y)
 
     def evaluate_model(self):
-        pass
+        logger = lg.getLogger(self.evaluate_model.__name__)
+        y_true = self.df_test[self.target_column].values
+        y_pred = self.best_pipeline.predict(self.df_test.drop(columns=self.target_column))
+        evaluation_report = classification_report(y_true, y_pred)
+        logger.info('Evaluation report: `\n %s', evaluation_report)
 
     def save_artifacts(self):
         pass

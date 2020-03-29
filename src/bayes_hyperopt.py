@@ -1,7 +1,7 @@
 """Bayesian hyperparameter tuning module
 """
 from sklearn.model_selection import cross_val_score
-from hyperopt import hp, fmin, tpe, Trials, STATUS_OK  # , STATUS_FAIL
+from hyperopt import hp, fmin, tpe, space_eval, Trials, STATUS_OK  # , STATUS_FAIL
 
 
 class BayesOpt:
@@ -17,13 +17,13 @@ class BayesOpt:
     def __init__(self, config_loader):
         self._config_loader = config_loader
         self._n_iterations = self._config_loader['n_iterations']
+        self._generic_space = {'countthresholder': {'min_rel_freq': hp.uniform('min_rel_freq', 0.0, 1.0)},
+                               'categoricalencoder': {'encoder': hp.choice('encoder', ['onehot', 'mean'])},
+                               'simpleimputer': {'strategy': hp.choice('strategy', ['mean', 'median'])}}
 
-    def _define_parameters_prob_space(self):
-        generic_space = {'countthresholder': {'min_rel_freq': hp.uniform('min_rel_freq', 0.0, 1.0)},
-                         'categoricalencoder': {'encoder': hp.choice('encoder', ['onehot', 'mean'])},
-                         'simpleimputer': {'strategy': hp.choice('strategy', ['mean', 'median'])}}
+    def _define_search_space(self):
         model_space = {'logisticregression': self._load_models_candidates()}
-        self.search_space = {**generic_space, **model_space}
+        self.search_space = {**self._generic_space, **model_space}
 
     def _load_models_candidates(self):
         # TODO: Implement logic to handle more than one model at the same time and unit tests
@@ -39,11 +39,14 @@ class BayesOpt:
 
     def optimization(self, pipeline, X, y):
         def objective_function(search_space):
+            # TODO: Add custom metrics for evaluation
             loss_avg = cross_val_score(pipeline(search_space), X, y).mean()
             status = STATUS_OK
             return {'loss': loss_avg, 'status': status}
 
-        self._define_parameters_prob_space()
+        self._define_search_space()
         trials = Trials()
-        best = fmin(objective_function, self.search_space, algo=tpe.suggest, max_evals=self._n_iterations, trials=trials)
-        return best
+        best_trial = fmin(objective_function, self.search_space, algo=tpe.suggest, max_evals=self._n_iterations,
+                          trials=trials)
+        best_parameters = space_eval(self.search_space, best_trial)
+        return best_parameters
