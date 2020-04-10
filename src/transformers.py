@@ -1,6 +1,5 @@
-"""
-Custom transformers for sklearn pipelines.
-"""
+"""Custom transformers for sklearn pipelines"""
+
 import pandas as pd
 import numpy as np
 from sklearn.base import TransformerMixin

@@ -1,4 +1,5 @@
 """Module to load config yaml files"""
+
 import yaml
 
 

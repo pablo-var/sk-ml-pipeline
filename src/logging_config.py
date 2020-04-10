@@ -1,6 +1,5 @@
-"""
-Logging configuration module
-"""
+"""Logging configuration module"""
+
 import logging as lg
 
 
