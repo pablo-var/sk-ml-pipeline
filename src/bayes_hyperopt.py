@@ -24,29 +24,33 @@ class BayesOpt:
                                'categoricalencoder': {'encoder': hp.choice('encoder', ['onehot', 'mean'])},
                                'simpleimputer': {'strategy': hp.choice('strategy', ['mean', 'median'])}}
 
-    def _load_model_settings(self):
+    @property
+    def model_settings(self):
+        """Model hyperparameter space"""
         # TODO: Implement logic to handle more than one model at the same time and unit tests
         model_space = {}
         model_parameters = self._config_loader['model_parameters']
         for param in model_parameters.keys():
-            if 'uniform' in model_parameters:
+            if 'uniform' in model_parameters[param]:
                 min_value, max_value = model_parameters[param]['uniform']
-                model_space[param] = hp.choice(param, min_value, max_value)
-            elif 'choice' in model_parameters:
+                model_space[param] = hp.uniform(param, min_value, max_value)
+            elif 'choice' in model_parameters[param]:
                 model_space[param] = hp.choice(param, model_parameters[param]['choice'])
         return model_space
 
-    def _define_search_space(self):
-        model_space = {'logisticregression': self._load_model_settings()}
-        self.search_space = {**self._generic_space, **model_space}
+    @property
+    def search_space(self):
+        """Pipeline hyperparameter space"""
+        model_space = {'logisticregression': self.model_settings}
+        return {**self._generic_space, **model_space}
 
     def optimization(self, pipeline, X, y):
         """
         Find the optimal pipeline hyperparameters.
 
-        The search space and the objetive functions are defined inside
-        the method. In addition, `_n_iterations` are executed sequentially
-        to find the best hyperparameter space, which is returned.
+        The objetive functions are defined inside the method and
+        `_n_iterations` are executed sequentially to find the best
+        hyperparameter space, which is returned.
 
         Parameters
         ----------
@@ -64,7 +68,6 @@ class BayesOpt:
             Best hyperparameters for the objetive function in the
             validation set
         """
-        self._define_search_space()
 
         def objective_function(search_space):
             # TODO: Add custom metrics for evaluation

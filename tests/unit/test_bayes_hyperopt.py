@@ -54,7 +54,29 @@ def y_testing():
     return np.array([1, 0, 0, 1, 0, 0, 0, 1, 1, 1])
 
 
-def test__bayesopt__optimization__cat_features_correct_response(config, X_int, X_float, X_bool, y_testing):
+def test_bayesopt___n_iterations(config):
+    bayes = BayesOpt(config)
+    assert bayes._n_iterations == 2
+
+
+def test_bayesopt___generic_space(config):
+    bayes = BayesOpt(config)
+    assert list(bayes._generic_space.keys()) == ['countthresholder', 'categoricalencoder', 'simpleimputer']
+
+
+def test_bayesopt___load_model_settings__correct_response(config):
+    bayes = BayesOpt(config)
+    assert list(bayes.model_settings.keys()) == ['C', 'penalty']
+    assert bayes.model_settings.values()
+
+
+def test_bayesopt___define_search_space__correct_response(config):
+    bayes = BayesOpt(config)
+    assert list(bayes.search_space.keys()) == ['countthresholder', 'categoricalencoder', 'simpleimputer',
+                                               'logisticregression']
+
+
+def test__bayesopt__optimization__cat_features__correct_response(config, X_int, X_float, X_bool, y_testing):
     bayes = BayesOpt(config)
 
     def create_pipeline(search_space):
@@ -67,7 +89,7 @@ def test__bayesopt__optimization__cat_features_correct_response(config, X_int, X
     bayes.optimization(create_pipeline, X_bool, y_testing)
 
 
-def test__bayesopt__optimization__cat_and_numeric_features_correct_response(config, X_cat_float_int__bool, y_testing):
+def test__bayesopt__optimization__cat_and_numeric_features__correct_response(config, X_cat_float_int__bool, y_testing):
     bayes = BayesOpt(config)
 
     def create_pipeline(search_space):
