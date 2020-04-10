@@ -9,9 +9,11 @@ from category_encoders.target_encoder import TargetEncoder
 
 
 class SelectDtypeColumns(TransformerMixin):
-    """
-    Transformer that selects columns of a specific type from a dataframe and returns a numpy array.
-    At least one of the parameters must be supplied.
+    """Class to select columns of a specific type from a dataframe.
+
+    Transformer that selects columns of a specific type from a dataframe
+    and returns a numpy array. At least one of the parameters must be
+    supplied. The implementation follow the scikit-learn structure.
 
     Parameters
     ----------
@@ -33,7 +35,8 @@ class SelectDtypeColumns(TransformerMixin):
 
 
 class CountThresholder(TransformerMixin):
-    """
+    """Encode low frequency classes as a single one
+
     Encode less frequent categorical variables to a new category. The input must be a numpy array with rows and columns.
     For each column, the transformed output is a column where the input category is retained whether:
     - it is in the top max_categories_ ordered by frequency in the training data
@@ -91,7 +94,18 @@ class CountThresholder(TransformerMixin):
 
 
 class CategoricalEncoder(TransformerMixin):
+    """Encode categorical features using different strategies
 
+    The class is a wrapper of transformers than follow the structure
+    of scikit-learn. The purpose is to apply hyperparameter optimization
+    of the encoding by changing only the `encoder` name.
+
+    Parameters
+    ----------
+    encoder : str
+        Encoding strategy name. It must be `onehot` or `mean`
+
+    """
     def __init__(self, encoder):
         self.encoder_ = encoder
         self._class_mapping = {'onehot': OneHotEncoder, 'mean': TargetEncoder}

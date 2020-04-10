@@ -3,6 +3,7 @@ local_artifacts_path: &local_artifacts_path !join [*local_app_path, /artifacts]
 local_data_path: !join [*local_artifacts_path, /breast-cancer-wisconsin-data.zip]
 
 target_column: diagnosis
+drop_columns: id
 train_size: 0.9
 model_type: linear_model.LogisticRegression
 n_iterations: 5

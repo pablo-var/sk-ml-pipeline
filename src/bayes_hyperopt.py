@@ -6,6 +6,8 @@ from hyperopt import hp, fmin, tpe, space_eval, Trials, STATUS_OK  # , STATUS_FA
 
 class BayesOpt:
     """
+    Bayesian hyperparameter tuning of `scikit-learn` pipelines.
+
     Parameters to hyperopt
     - Categorical: Relative frequency (%) to encode as 'other'
     - Categorical encoder (unify mean-encoding, one-hot, and label-encoding)
