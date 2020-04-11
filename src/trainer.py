@@ -10,6 +10,8 @@ from sklearn.pipeline import make_pipeline, make_union
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
+import mlflow
+import mlflow.sklearn
 
 from src.logging_config import setup_logging
 from src.config_loader import ConfigLoader
@@ -42,15 +44,29 @@ class Trainer:
         """Target column name in the dataset"""
         return self._config['target_column']
 
+    @property
+    def mlflow_experiment_name(self):
+        """MLflow experiment name"""
+        return self._config['mlflow_experiment_name']
+
     def run(self):
         """Complete pipeline execution for model training and persistence"""
+        logger = lg.getLogger(self.load_data.__name__)
+        logger.info('Starting pipeline execution')
         self.load_data()
         self.preprocessing()
         self.qa_data()
         self.split_data()
-        self.train_model()
-        self.evaluate_model()
-        self.persist_artifacts()
+        try:
+            mlflow.create_experiment(self.mlflow_experiment_name)
+            logger.info('The MLflow experiment %s has been created', self.mlflow_experiment_name)
+        except mlflow.exceptions.MlflowException:
+            logger.info('The MLflow experiment %s has been set', self.mlflow_experiment_name)
+        mlflow.set_experiment(self.mlflow_experiment_name)
+        with mlflow.start_run():
+            self.train_model()
+            self.evaluate_model()
+            self.persist_artifacts()
 
     def load_data(self):
         """Load the dataset as pandas `DataFrame` object"""
@@ -164,6 +180,7 @@ class Trainer:
         model_file = os.path.join(self._config['local_artifacts_path'],
                                   f"model_{datetime.now().strftime('%Y%m%d%H%M')}.pkl")
         persist_local_artifact(self.best_pipeline, model_file)
+        mlflow.sklearn.log_model(self.best_pipeline, 'sk_model')
         logger.info('Model artifact stored in %s', model_file)
 
 

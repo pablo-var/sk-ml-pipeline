@@ -1,3 +1,4 @@
+"""Unit tests for the bayes_hyperopt module"""
 import pytest
 import numpy as np
 import pandas as pd

@@ -105,6 +105,7 @@ class CategoricalEncoder(TransformerMixin):
         Encoding strategy name. It must be `onehot` or `mean`
 
     """
+    # TODO: Add OrdinalEncoder
     def __init__(self, encoder):
         self.encoder_ = encoder
         self._class_mapping = {'onehot': OneHotEncoder, 'mean': TargetEncoder}

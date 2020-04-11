@@ -1,6 +1,4 @@
-"""
-Unit tests for the config_loader module
-"""
+"""Unit tests for the config_loader module"""
 
 from src.config_loader import ConfigLoader
 

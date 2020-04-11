@@ -1,7 +1,7 @@
 local_app_path: &local_app_path /usr/app
 local_artifacts_path: &local_artifacts_path !join [*local_app_path, /artifacts]
 local_data_path: !join [*local_artifacts_path, /breast-cancer-wisconsin-data.zip]
-
+mlflow_experiment_name: lr.1.0
 target_column: diagnosis
 drop_columns: id
 train_size: 0.9
