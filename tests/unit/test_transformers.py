@@ -1,6 +1,4 @@
-"""
-Module for unit testing the custom transformers.
-"""
+"""Module for unit testing the custom transformers"""
 
 import pytest
 import numpy as np

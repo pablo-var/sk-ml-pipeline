@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+docker build -t sk-ml-pipeline-deploy:latest -f Dockerfile.deployment .
+
+docker run  -p 8888:8888 -v $(pwd):/usr/app sk-ml-pipeline-deploy:latest bash -c \
+"mlflow models serve -m mlruns/${1}/${2}/artifacts/sk_model -h 0.0.0.0 -p 8888"

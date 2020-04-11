@@ -1,4 +1,4 @@
-FROM python:3.8-slim-buster
+FROM continuumio/miniconda3
 
 RUN apt-get update && apt-get install -y \
     curl \
@@ -8,14 +8,14 @@ RUN apt-get update && apt-get install -y \
     screen \
  && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --upgrade pip
-
 WORKDIR /usr/app
 
 # TODO: Add data to .dockerignore
 COPY . .
 
-RUN pip install -r requirements.txt
+RUN conda env create -f environment.yaml
+RUN echo "source activate env" > ~/.bashrc
+ENV PATH /opt/conda/envs/env/bin:$PATH
 
 ENV APP_PATH="/usr/app"
 ENV PYTHONPATH "${PYTHONPATH}:${APP_PATH}"

@@ -1,10 +1,10 @@
-"""
-Logging configuration module
-"""
+"""Logging configuration module"""
+
 import logging as lg
 
 
 def setup_logging():
+    """Configuration of the logging settings"""
     logger = lg.getLogger()
     logger.setLevel(lg.INFO)
     logger.info('Logging set up')

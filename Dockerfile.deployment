@@ -1,0 +1,9 @@
+FROM continuumio/miniconda3
+
+RUN pip install --upgrade pip
+RUN pip install mlflow==1.7.2
+
+WORKDIR /usr/app
+
+# TODO: Add data to .dockerignore
+COPY . .
