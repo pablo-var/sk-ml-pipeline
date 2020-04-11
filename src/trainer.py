@@ -12,6 +12,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 import mlflow
 import mlflow.sklearn
+from mlflow.exceptions import MlflowException
 
 from src.logging_config import setup_logging
 from src.config_loader import ConfigLoader
@@ -60,7 +61,7 @@ class Trainer:
         try:
             mlflow.create_experiment(self.mlflow_experiment_name)
             logger.info('The MLflow experiment %s has been created', self.mlflow_experiment_name)
-        except mlflow.exceptions.MlflowException:
+        except MlflowException:
             logger.info('The MLflow experiment %s has been set', self.mlflow_experiment_name)
         mlflow.set_experiment(self.mlflow_experiment_name)
         with mlflow.start_run():
@@ -179,8 +180,8 @@ class Trainer:
         logger = lg.getLogger(self.evaluate_model.__name__)
         model_file = os.path.join(self._config['local_artifacts_path'],
                                   f"model_{datetime.now().strftime('%Y%m%d%H%M')}.pkl")
-        persist_local_artifact(self.best_pipeline, model_file)
-        mlflow.sklearn.log_model(self.best_pipeline, 'sk_model')
+        # persist_local_artifact(self.best_pipeline, model_file)
+        mlflow.sklearn.log_model(self.best_pipeline, 'sk_model', self._config['conda_environment_path'])
         logger.info('Model artifact stored in %s', model_file)
 
 
