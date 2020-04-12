@@ -13,4 +13,5 @@ def test__config_loader__correct_response():
     assert config['list_key'] == [1, 'value2', 3]
     assert list(config['model_parameters'].keys()) == ['C', 'penalty']
     assert config['model_parameters']['C']['uniform'] == [0.2, 1]
-    assert config['model_parameters']['penalty']['choice'] == ['l1', 'l2', 'elasticnet']
+    assert config['model_parameters']['penalty']['choice'] == ['l1', 'l2']
+    assert config.get('non_existent_key') is None

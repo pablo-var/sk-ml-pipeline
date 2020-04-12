@@ -4,6 +4,9 @@ local_data_path: !join [*local_artifacts_path, /breast-cancer-wisconsin-data.zip
 conda_environment_path: !join [*local_app_path, /environment.yaml]
 mlflow_experiment_name: lr.1.0
 target_column: diagnosis
+target_replace_mapping:
+  'M': 1
+  'B': 0
 drop_columns: id
 train_size: 0.9
 model_type: linear_model.LogisticRegression

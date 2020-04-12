@@ -28,3 +28,6 @@ class ConfigLoader:
 
     def __getitem__(self, item):
         return self._config[item]
+
+    def get(self, key):
+        return self._config.get(key, None)

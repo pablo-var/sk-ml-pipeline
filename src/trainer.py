@@ -26,8 +26,7 @@ CONFIG.load('config/config.yaml')
 
 
 class Trainer:
-    """Class to train machine learning models and save artifacts"""
-    # TODO: Remove the custom logic for the breast cancer dataset
+    """Train machine learning models and save artifacts using MLflow"""
     def __init__(self, config, seed=0):
         self._config = config
         self._seed = seed
@@ -44,6 +43,11 @@ class Trainer:
     def target_column(self):
         """Target column name in the dataset"""
         return self._config['target_column']
+
+    @property
+    def target_replace_mapping(self):
+        """Dictionary to decode the raw target values"""
+        return self._config.get('target_replace_mapping')
 
     @property
     def mlflow_experiment_name(self):
@@ -74,9 +78,10 @@ class Trainer:
         # TODO: Implement loading process from S3
         logger = lg.getLogger(self.load_data.__name__)
         logger.info('Loading data')
-        # https://www.kaggle.com/uciml/breast-cancer-wisconsin-data
         self.data = pd.read_csv(self._config['local_data_path'])
-        self.data.diagnosis.replace({'M': 1, 'B': 0}, inplace=True)
+        if self.target_replace_mapping:
+            self.data[self.target_column].replace(self.target_replace_mapping, inplace=True)
+            logger.info('The target has been encoded using: %s', self.target_replace_mapping)
         logger.info('Data columns: %s', self.data.columns)
         logger.info('Data head: \n %s', self.data.head())
 
@@ -168,7 +173,7 @@ class Trainer:
 
     def evaluate_model(self):
         """Evaluate the model performance"""
-        # TODO: Add a baseline to compare
+        # TODO: Add a baseline to compare and sklearn metrics from config
         logger = lg.getLogger(self.evaluate_model.__name__)
         y_true = self.df_test[self.target_column].values
         y_pred = self.best_pipeline.predict(self.df_test.drop(columns=self.target_column))

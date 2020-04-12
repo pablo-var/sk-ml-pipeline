@@ -7,4 +7,4 @@ model_parameters:
   C:
     uniform: [0.2, 1]
   penalty:
-    choice: [l1, l2, elasticnet]
+    choice: [l1, l2]
