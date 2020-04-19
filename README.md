@@ -14,3 +14,9 @@ have been created to automatize the most important pipeline steps:
 - Execute the tests: `bin/tests`
 - Deploy a model: `bin/deploy {experiment_id} {run_id}`. The experiment and run identifiers are generated automatically
 by MLflow.
+
+## Next steps
+- Model deployment and artifact persistence using AWS
+- Integration with all scikit-learn models including regression and multi-class algorithms
+- Create integration tests
+- Design a use case and add notebooks with real examples

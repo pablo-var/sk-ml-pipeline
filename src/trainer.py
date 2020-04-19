@@ -27,6 +27,7 @@ CONFIG.load('config/config.yaml')
 
 class Trainer:
     """Train machine learning models and save artifacts using MLflow"""
+    # TODO: Log MLflow metrics
     def __init__(self, config, seed=0):
         self._config = config
         self._seed = seed
@@ -97,7 +98,6 @@ class Trainer:
         logger.info('Preprocessing data:')
         self.data.drop(columns=self._config['drop_columns'], inplace=True)
         self.data.dropna(axis='columns', how='all', inplace=True)
-        # self.data['cat'] = np.random.choice(['a', 'b'], size=self.data.shape[0])
         self.data.select_dtypes(exclude=['number', 'bool']).fillna('nan')
         logger.info('Data head: \n %s', self.data.head())
         logger.info(self.data.columns)

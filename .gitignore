@@ -4,3 +4,4 @@
 artifacts/
 *__pycache__/
 mlruns/
+.DS_Store

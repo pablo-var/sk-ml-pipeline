@@ -40,6 +40,7 @@ class BayesOpt:
 
     @property
     def search_space(self):
+        # TODO: Parametrize for a different model class
         """Pipeline hyperparameter space"""
         model_space = {'logisticregression': self.model_settings}
         return {**self._generic_space, **model_space}
